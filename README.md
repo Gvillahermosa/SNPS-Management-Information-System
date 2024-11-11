@@ -1,7 +1,39 @@
-﻿# SNPS-Management-Information-System
-# Admin account Username = admin Password = admin
+# SNPS Management Information System
 
-# first step after downloading the file locate y our xampp folder in the local disk C, Then after clicking the xampp folder locate the htdocs and transfer the SNPS-Management-Information-System inside the htdocs folder
-# After Transferring the folder open your xampp controlpanel and make a database with the name of studentgradingsystem. Import the database inside the database folder in the SNPS-Management-Information-System
-# Then you can now paste this link in your browser to access the site http://localhost/Student_Grading_System/index.php
-# If you have questions feel free to chat:)
+Welcome to the **SNPS Management Information System** repository. This project is designed to streamline and manage student grading data efficiently.
+
+## Admin Credentials
+
+- **Username:** `admin`
+- **Password:** `admin`
+
+---
+
+## Getting Started
+
+To set up and run this project on your local machine, follow the steps below.
+
+### Step 1: Set Up XAMPP and Project Directory
+
+1. **Locate XAMPP Folder:** Open the XAMPP folder on your `C:` drive (usually located at `C:\xampp`).
+2. **Transfer Project to htdocs:** Within the `xampp` folder, locate the `htdocs` folder. Move the entire `SNPS-Management-Information-System` folder into `htdocs`.
+
+### Step 2: Configure the Database
+
+1. **Open XAMPP Control Panel:** Start the XAMPP Control Panel and launch **Apache** and **MySQL** services.
+2. **Create Database:** Access [phpMyAdmin](http://localhost/phpmyadmin) and create a new database named `studentgradingsystem`.
+3. **Import Database:** Import the SQL file located in the `database` folder of the `SNPS-Management-Information-System` directory into your new `studentgradingsystem` database.
+
+### Step 3: Launch the Application
+
+Once the setup is complete, you can access the application by entering the following URL into your browser:
+
+http://localhost/Student_Grading_System/index.php
+
+
+---
+
+## Support
+
+If you have any questions or need assistance, please feel free to reach out!
+
