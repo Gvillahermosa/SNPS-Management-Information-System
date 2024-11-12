@@ -1,0 +1,154 @@
+body {
+    background-image: url(../images/background.png);
+    background-size: cover;
+    background-position: right 320px top -85px;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+#diagonal-border {
+    position: absolute;
+    border-style: solid;
+    left: 46%;
+    border-width: 100vh 10vw 0px 0px;
+    border-color: transparent #fff transparent;
+
+}
+
+.loginform{
+    height: 120vh;
+    width: 50%;
+    background-color: #fff;
+    position: relative;
+    margin-left: 852px;
+    margin-top: -8px;
+}
+
+.loginform h1{
+    position: absolute;
+    transform: translate(40%, -10%); /* Adjusts for the content size */
+    width: 60%; /* Limit the width to prevent text from stretching too far */
+    text-align: left; /* Ensures text inside is centered */
+    font-size: 45px;
+}
+
+.logo{
+    position: absolute;
+    width: 160px;
+    height: 168px;
+}
+
+.inputs{
+    position: absolute;
+    margin-top: 280px;
+}
+
+.inputBox{
+    position: relative;
+    width: 450px;
+    margin-left: 80px;
+    margin-bottom: 40px;
+}
+
+.inputBox input {
+    width: 100%;
+    padding: 20px;
+    border: 5px solid rgba(0, 0, 0, 1); /* Thick black border */
+    background: #fff;
+    border-radius: 5px;
+    color: black;
+    font-size: 1em;
+
+}
+
+.inputBox input[type="email"],
+.inputBox input[type="password"],
+.inputBox input[type="text"] {
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    padding: 10px;
+}
+
+.inputBox span{
+    position: absolute;
+    left: 0;
+    padding: 10px;
+    margin-top: -40px;
+    pointer-events: none;
+    font-size: 1em;
+    color: black;
+    text-transform: uppercase;
+    transition: 0.5s;
+    color: #747474;
+}
+
+.inputBox input:valid ~ span,
+.inputBox input:focus ~ span{
+    transform: translateX(8px) translateY(-6px);
+    font-size: 0.9em;
+    padding: 0 5px;
+    background: #fff;
+
+}
+
+input:focus {
+    outline: none; /* Removes the outline that appears when the input is focused */
+    border: none;  /* Removes the border */
+}
+
+.inputs button{
+    background: #036;
+    color: #fff;
+    font-size: 18px;
+    padding: 10px 45px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+    margin-left: 180px;
+    width: 263px;
+    transition: transform .3s;
+}
+
+.inputs button:hover{
+    transform: scale(1.1);
+    transition: transform .3s;
+}
+
+#forgotpass{
+    margin-top: 50px;
+    margin-left: 30px;
+    text-align: center;
+    font-family: Inika;
+    font-size: 26px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+#contact_it{
+    color: #000;
+    text-align: center;
+    font-family: Inika;
+    font-size: 19px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    width: 50%; /* Limit the width to prevent text from stretching too far */
+    text-align: center;
+    margin-left: 160px;
+}
+
+
+.error {
+    background-color: #f44336;
+    color: white;
+    padding: 10px;
+    width: 35%;
+    border-radius: 5px;
+    margin-top: -55px;
+    margin-left:200px;
+ }
