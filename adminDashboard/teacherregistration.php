@@ -224,7 +224,6 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
                             <option value="admin">Admin</option>
                             <option value="principal">Principal</option>
                             <option value="teacher">Teacher</option>
-                            <option value="subject_teacher">Subject Teacher</option>
                         </select>
                     </div>
                 </div>

@@ -131,7 +131,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
                                     echo "<td>" . $row['name'] . "</td>";
                                     echo "<td>" . $row['gender'] . "</td>";
                                     echo "<td>" . $row['class'] . "</td>";
-                                    echo "<td><a href='edit.php?id=" . $row['id'] . "' class='btn btn-primary'>Edit</a></td>";
+                                    echo "<td><a href='student_profile.php?id=" . $row['id'] . "' class='btn btn-primary'>Profile</a></td>";
                                     echo "</tr>";
                                 }
                             }

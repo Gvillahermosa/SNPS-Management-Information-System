@@ -1,22 +1,24 @@
 <?php
+
 session_start();
 
 if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
+
     // Database connection
     $conn = new mysqli("localhost", "root", "", "studentgradingsystem");
-
 
     // Check connection
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Fetch data from the students table
+    // Fetch data from the classes, studentinfo, and users tables
     $sql = "
     SELECT
         c.id,
         c.level,
         c.section,
+        c.teacher,
         SUM(CASE WHEN s.gender = 'Male' THEN 1 ELSE 0 END) AS male,
         SUM(CASE WHEN s.gender = 'Female' THEN 1 ELSE 0 END) AS female,
         COUNT(s.id) AS total
@@ -25,9 +27,11 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
     LEFT JOIN
         studentinfo s ON c.id = s.class
     GROUP BY
-        c.id, c.level, c.section
-";
+        c.id, c.level, c.section,c.teacher
+    ";
+
     $result = $conn->query($sql);
+
     ?>
     <!DOCTYPE html>
 
@@ -123,6 +127,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
                                 <th>#</th>
                                 <th>Level</th>
                                 <th>Section</th>
+                                <th>Teacher</th>
                                 <th>Male</th>
                                 <th>Female</th>
                                 <th>Total</th>
@@ -136,6 +141,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
                                     echo "<td>" . $row['id'] . "</td>";
                                     echo "<td>" . $row['level'] . "</td>";
                                     echo "<td>" . $row['section'] . "</td>";
+                                    echo "<td>" . $row['teacher'] . "</td>";
                                     echo "<td>" . $row['male'] . "</td>";
                                     echo "<td>" . $row['female'] . "</td>";
                                     echo "<td>" . $row['total'] . "</td>";
@@ -150,6 +156,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
                                 <th>#</th>
                                 <th>Level</th>
                                 <th>Section</th>
+                                <th>Teacher</th>
                                 <th>Male</th>
                                 <th>Female</th>
                                 <th>Total</th>

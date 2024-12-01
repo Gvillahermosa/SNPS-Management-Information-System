@@ -5,32 +5,31 @@ include "../db/db_conn.php";
 $messageType = "";
 $messageText = "";
 
+$classSql = "SELECT id, CONCAT(first_name, ' ', last_name) AS name, role FROM users WHERE role='teacher'";
+$classResult = $conn->query($classSql);
+
 if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Capture form data
         $level = $_POST['level'];
         $section = $_POST['section'];
+        $teacher = $_POST['teacher_name']; // Capture teacher name here
 
-        // Define the SQL query to check if the class already exists
         $checkSql = "SELECT id FROM classes WHERE level = ? AND section = ?";
-
-        // Prepare the statement and execute the check
         if ($stmt = $conn->prepare($checkSql)) {
             $stmt->bind_param("ss", $level, $section);
             $stmt->execute();
             $stmt->store_result();
 
-            // Check if the class already exists
             if ($stmt->num_rows > 0) {
                 $messageType = "error";
                 $messageText = "Class already exists.";
             } else {
-                $stmt->close(); // Close previous statement
+                $stmt->close();
 
-                // Proceed to insert the new class
-                $insertSql = "INSERT INTO classes (section, level) VALUES (?, ?)";
+                // Insert query to include teacher name
+                $insertSql = "INSERT INTO classes (section, level, teacher) VALUES (?, ?, ?)";
                 if ($stmt = $conn->prepare($insertSql)) {
-                    $stmt->bind_param("ss", $section, $level);
+                    $stmt->bind_param("sss", $section, $level, $teacher);
 
                     if ($stmt->execute()) {
                         $messageType = "success";
@@ -46,7 +45,6 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             $messageType = "error";
             $messageText = "Could not prepare check query. " . $conn->error;
         }
-
         $conn->close();
     }
     ?>
@@ -146,6 +144,27 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
                             <div class="form-group">
                                 <label for="section">Section</label>
                                 <input type="text" id="section" name="section" class="form-control" required>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="form-row">
+
+                            <div class="form-group">
+                                <label for="teacher_name">Teacher</label>
+                                <select id="teacher_name" name="teacher_name" class="form-control" required>
+                                    <!-- Updated name -->
+                                    <option value="">Select Teacher for this class</option>
+                                    <?php
+                                    if ($classResult->num_rows > 0) {
+                                        while ($class = $classResult->fetch_assoc()) {
+                                            echo "<option value='" . $class['name'] . "'>" . $class['name'] . " - " . $class['role'] . "</option>";
+                                        }
+                                    } else {
+                                        echo "<option value=''>No Teachers available</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
 
