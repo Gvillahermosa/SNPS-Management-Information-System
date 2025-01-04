@@ -1,0 +1,122 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.page {
+    position: absolute;
+    width: 297mm; /* A4 width in landscape */
+    height: 210mm; /* A4 height in landscape */
+    padding: 10mm;
+    box-sizing: border-box;
+    border: 1px solid #000;
+    margin-top: 135%;
+}
+
+.header {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.section {
+    display: flex;
+    justify-content: space-between;
+}
+
+.table-container {
+    width: 48%; /* Divide space evenly between sections */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+#attendance {
+    width: 80%; /* Adjusted width for attendance table */
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    text-align: center;
+    padding: 10px; /* Adjusted padding for better spacing */
+    font-size: 14px; /* Increased font size */
+}
+
+.vertical {
+    writing-mode: vertical-rl; /* Make text vertical */
+    transform: rotate(180deg); /* Adjust orientation for readability */
+}
+
+.footer {
+    margin-top: 20px;
+    font-size: 14px; /* Increased font size for evaluation code */
+}
+
+.evaluation {
+    font-size: 14px; /* Increased font size */
+    margin-top: 70px; /* Added gap between attendance and evaluation code */
+    margin-left: 20px;
+}
+
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 0;
+    }
+    body {
+        margin: 0;
+    }
+    .page {
+        border: none;
+    }
+}
+
+
+ /* Style to reduce the input width */
+ input[type="text"] {
+    border: none;
+    width: 15px; /* Adjust as needed */
+    padding: 2px;
+    text-align: center; /* Align text to center */
+    font-size: 14px; /* Adjust font size for better readability */
+}
+
+
+/* Specific adjustments for Growth in Habits & Attitudes table */
+.habits-table {
+    table-layout: fixed;
+    width: 95%; /* Ensure it fits into the card */
+    margin: 0 auto;
+    font-size: 11px; /* Reduce font size */
+}
+
+.habits-table th, .habits-table td {
+    width: 60px; /* Keep compact column width */
+    padding: 3px; /* Reduce padding further */
+    word-wrap: break-word; /* Enable wrapping for long text */
+    text-align: center; /* Center-align text for all cells */
+}
+
+.habits-table th:first-child, .habits-table td:first-child {
+    width: 90px; /* Provide more space for the subject names */
+    text-align: left; /* Align the first column (subjects) to the left */
+}
+
+/* Adjust input field size in this table */
+.habits-table input[type="text"] {
+    border: none;
+    width: 25px; /* Smaller input size */
+    padding: 1px; /* Minimal padding */
+    font-size: 10px; /* Font size matches table text */
+    text-align: center; /* Align input text centrally */
+}

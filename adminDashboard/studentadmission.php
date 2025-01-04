@@ -5,8 +5,27 @@ include "../db/db_conn.php";
 $messageType = "";
 $messageText = "";
 
+
 $classSql = "SELECT id, level, section FROM classes";
 $classResult = $conn->query($classSql);
+
+// Get the current year and month
+$currentYear = date("Y");
+$currentMonth = date("n"); // Numeric month (1 for January, 12 for December)
+
+// Determine the school year and semester
+if ($currentMonth < 6) { // Before June
+    $startYear = $currentYear - 1;
+    $endYear = $currentYear;
+    $semester = "2nd semester";
+} else { // June or later
+    $startYear = $currentYear;
+    $endYear = $currentYear + 1;
+    $semester = "1st semester";
+}
+
+// Combine into the school year format
+$schoolYear = $startYear . " - " . $endYear . " , " . $semester;
 
 if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -76,10 +95,10 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
         <div class="header">
             <div class="header-left">
                 <img src="../Assets/images/logo.png" alt="Logo">
-                <p>SNPS | Admin</p>
+                <p>SNPS | <?php echo $_SESSION['role']; ?></p>
             </div>
             <div class="navlink">
-                <p>SY 2024-2025, 1st Semester</p>
+                <p>SY <?php echo $schoolYear; ?></p>
                 <p>|</p>
                 <p class="user-name"><?php echo $_SESSION['name']; ?></p>
                 <p>|</p>
@@ -106,8 +125,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
                         <span class="fas fa-caret-down third"></span>
                     </a>
                     <ul class="jobplace-show">
-                        <li><a href="">Manage Subjects</a></li>
-                        <li><a href="">Create Subject</a></li>
+                        <li><a href="../adminDashboard/manage_subjects.php">Manage Subjects</a></li>
+                        <li><a href="../adminDashboard/create_subject.php">Create Subject</a></li>
                     </ul>
                 </li>
                 <li><a href="#" class="classes-btn">

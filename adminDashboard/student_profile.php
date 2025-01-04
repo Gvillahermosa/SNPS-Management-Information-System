@@ -7,24 +7,22 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['user_name'])) {
     exit();
 }
 
-
 // Get the current year and month
 $currentYear = date("Y");
-$currentMonth = date("n"); // Numeric month (1 for January, 12 for December)
+$currentMonth = date("n");
 
-// Determine the school year
-if ($currentMonth < 6) { // Before June
-    $startYear = -1;
+// Determine the school year and semester
+if ($currentMonth < 6) {
+    $startYear = $currentYear - 1;
     $endYear = $currentYear;
-} else { // June or later
+    $semester = "2nd semester";
+} else {
     $startYear = $currentYear;
     $endYear = $currentYear + 1;
+    $semester = "1st semester";
 }
 
-// Combine into the school year format
-$schoolYear = $startYear . " - " . $endYear;
-
-
+$schoolYear = $startYear . " - " . $endYear . " , " . $semester;
 
 
 // Check if 'id' is set in the query string
@@ -39,9 +37,26 @@ if (isset($_GET['id'])) {
         die("Connection failed: " . $conn->connect_error);
     }
 
+    // Retrieve teacher details based on session user ID
+    $user_id = $_SESSION['id'];
+    $sqlTeacher = "SELECT * FROM users WHERE id = ?";
+    $stmt = $conn->prepare($sqlTeacher);
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $resultTeacher = $stmt->get_result();
+    $teacher = $resultTeacher->fetch_assoc();
+    $teacher_id = $teacher['teacher_id'];
+    $stmt->close();
+
     // Fetch student details
     $sql = "
-        SELECT s.lrn, s.lname, s.fname, s.midname, s.suffix, CONCAT(s.lname, ', ', s.fname) AS name, s.gender, s.bdate,s.residence, c.level,  c.section , CONCAT(c.level, ' - ',c.section) AS class
+        SELECT s.id, s.lrn, s.lname, s.fname, s.midname, s.suffix,
+               CONCAT(s.lname, ', ', s.fname) AS name, s.gender,
+               CONCAT(s.mother_fname, ' ', s.mother_lname) AS mothers_name,
+               CONCAT(s.father_fname, ' ', s.father_lname) AS fathers_name,
+               CONCAT(s.guardian_fname, ' ', s.guardian_lname) AS guardians_name,
+               s.bdate, s.residence, s.studentpic, c.level, s.guardian_contactnum,
+               c.section, CONCAT(c.level, ' - ', c.section) AS class
         FROM studentinfo s
         JOIN classes c ON s.class = c.id
         WHERE s.id = ?
@@ -56,13 +71,74 @@ if (isset($_GET['id'])) {
     } else {
         $error_message = "Student not found.";
     }
-
     $stmt->close();
-    $conn->close();
+
+    // Fetch grades using the student's id
+    $sqlGrades = "
+     SELECT
+         sub.subject_name AS subject,
+         sg.q1, sg.q2, sg.q3, sg.q4, sg.final_grade,
+        CONCAT(u.first_name, ' ', u.last_name) AS teacher_name
+     FROM student_grades sg
+     JOIN subjects sub ON sg.subject_id = sub.id
+     JOIN classes c ON sg.class_id = c.id
+     JOIN users u ON c.teacher_id = u.id
+     WHERE sg.student_id = ?
+     ORDER BY sub.subject_name
+ ";
+    $stmtGrades = $conn->prepare($sqlGrades);
+    $stmtGrades->bind_param("i", $student_id);
+    $stmtGrades->execute();
+    $resultGrades = $stmtGrades->get_result();
+
+    $grades = [];
+    while ($row = $resultGrades->fetch_assoc()) {
+        // Add letter grade calculation for each quarter
+        $row['q1_letter'] = getLetterGrade($row['q1']);
+        $row['q2_letter'] = getLetterGrade($row['q2']);
+        $row['q3_letter'] = getLetterGrade($row['q3']);
+        $row['q4_letter'] = getLetterGrade($row['q4']);
+        $row['final_letter'] = getLetterGrade($row['final_grade']);
+        $grades[] = $row;
+    }
+    $stmtGrades->close();
+
+    // Debugging: Check if grades are empty
+    if (empty($grades)) {
+        $error_message = "No grades found for this student.";
+    }
 } else {
     $error_message = "No student selected.";
 }
 
+// Function to determine the letter grade
+function getLetterGrade($grade)
+{
+    if ($grade >= 96 && $grade <= 100) {
+        return 'A+';
+    } elseif ($grade >= 90 && $grade <= 95) {
+        return 'A';
+    } elseif ($grade >= 80 && $grade <= 89) {
+        return 'B';
+    } elseif ($grade >= 75 && $grade <= 79) {
+        return 'C';
+    } else {
+        return 'D';
+    }
+}
+
+
+// Default profile picture path
+$defaultProfilePic = '../Assets/images/profile.png'; // Ensure this path is correct
+
+// Prepare the profile picture variable
+if (!empty($student['studentpic'])) {
+    $profilePic = 'data:image/jpeg;base64,' . base64_encode($student['studentpic']);
+} else {
+    $profilePic = $defaultProfilePic; // Use default if no custom pic
+}
+
+// Handle profile picture upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload'])) {
     if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['profile_picture']['tmp_name'];
@@ -78,11 +154,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload'])) {
         }
 
         // Database update
-        $conn = new mysqli("localhost", "root", "", "studentgradingsystem");
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
         $sql = "UPDATE studentinfo SET studentpic = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("si", $fileBinary, $student_id);
@@ -90,6 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload'])) {
         if ($stmt->execute()) {
             if ($stmt->affected_rows > 0) {
                 echo "<script>alert('Profile picture updated successfully!');</script>";
+                $profilePic = 'data:image/jpeg;base64,' . base64_encode($fileBinary);
             } else {
                 echo "<script>alert('No changes were made.');</script>";
             }
@@ -98,17 +170,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload'])) {
         }
 
         $stmt->close();
-        $conn->close();
     } else {
         echo "<script>alert('Please select a valid file.');</script>";
     }
 }
 
-
-
-
+// Close the connection after all operations
+$conn->close();
 ?>
-
 <!DOCTYPE html>
 <html>
 
@@ -126,10 +195,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload'])) {
     <div class="header">
         <div class="header-left">
             <img src="../Assets/images/logo.png" alt="Logo">
-            <p>SNPS | Admin</p>
+            <p>SNPS | <?php echo $_SESSION['role']; ?></p>
         </div>
         <div class="navlink">
-            <p>SY 2024-2025, 1st Semester</p>
+            <p>SY <?php echo $schoolYear; ?></p>
             <p>|</p>
             <p class="user-name"><?php echo $_SESSION['name']; ?></p>
             <p>|</p>
@@ -156,8 +225,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload'])) {
                     <span class="fas fa-caret-down third"></span>
                 </a>
                 <ul class="jobplace-show">
-                    <li><a href="">Manage Subjects</a></li>
-                    <li><a href="">Create Subject</a></li>
+                    <li><a href="../adminDashboard/manage_subjects.php">Manage Subjects</a></li>
+                    <li><a href="../adminDashboard/create_subject.php">Create Subject</a></li>
                 </ul>
             </li>
             <li><a href="#" class="classes-btn">
@@ -192,29 +261,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload'])) {
         <div class="dashboard">
             <h2>Student Profile</h2>
             <div class="button-container">
-            <form method="POST" enctype="multipart/form-data">
-                <button class="buttons" name="upload">
+                <form method="POST" enctype="multipart/form-data">
+                    <button class="buttons" name="upload">
 
                         <div class="upload-btn">
                             <input type="file" id="profile-picture" name="profile_picture" accept="image/*" required>
                             <label for="profile-picture"><span class="icon-park--upload-picture"></span></label>
                         </div>
 
-                </button>
+                    </button>
                 </form>
                 <button class="buttons" onclick="printID()">
                     <span class="stash--user-id"></span> </button>
-                <button class="buttons" onclick="editInfo()">
-                    <span class="iconamoon--edit-light"></span></button>
+                <button class="buttons">
+                    <a href="editstudent.php?id=<?= $student['id']; ?>">
+                        <span class="iconamoon--edit-light"></span></a></button>
+
             </div>
             <div class="form-container">
                 <form class="student-form" method="POST">
                     <div class="photo-upload">
+
                         <div class="photo-placeholder" id="photo-placeholder">
-
-
-                            <img src="display_image.php?id=<?php echo $student_id; ?>" alt="Profile Picture"
+                            <img src="<?php echo htmlspecialchars($profilePic); ?>" alt="Profile Picture"
                                 id="profile-img">
+
                         </div>
 
                         <div class="student-info">
@@ -320,11 +391,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload'])) {
                                     </tr>
                                     <tr>
                                         <td>Mother's maiden name</td>
-                                        <td><?php echo htmlspecialchars($student['lrn']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['mothers_name']); ?></td>
                                     </tr>
                                     <tr>
                                         <td>Father's name</td>
-                                        <td><?php echo htmlspecialchars($student['lname']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['fathers_name']); ?></td>
                                     </tr>
                                     <tr style="height: 35px;">
                                         <td></td>
@@ -332,11 +403,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload'])) {
                                     </tr>
                                     <tr>
                                         <td>Guardian's name</td>
-                                        <td><?php echo htmlspecialchars($student['fname']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['guardians_name']); ?></td>
                                     </tr>
                                     <tr>
                                         <td>Guardian's contact number</td>
-                                        <td><?php echo htmlspecialchars($student['midname']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['guardian_contactnum']); ?></td>
                                     </tr>
 
                                 </tbody>
@@ -353,27 +424,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload'])) {
                                             <?php echo $schoolYear; ?>
                                         </th>
                                     </tr>
-                                </thead>
-                                <tbody>
                                     <tr>
                                         <th>Subject</th>
-                                        <th style="width: 100px;">Q1</th>
-                                        <th style="width: 100px;">Q2</th>
-                                        <th>Q3</th>
-                                        <th>Q4</th>
+                                        <th style="width: 100px;">1st</th>
+                                        <th style="width: 100px;">2nd</th>
+                                        <th>3rd</th>
+                                        <th>4th</th>
                                         <th>Final</th>
                                         <th>Teacher</th>
                                     </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-
+                                </thead>
+                                <tbody>
+                                    <?php if (!empty($grades)): ?>
+                                        <?php foreach ($grades as $grade): ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($grade['subject']); ?></td>
+                                                <td><?php echo htmlspecialchars($grade['q1_letter']); ?></td>
+                                                <td><?php echo htmlspecialchars($grade['q2_letter']); ?></td>
+                                                <td><?php echo htmlspecialchars($grade['q3_letter']); ?></td>
+                                                <td><?php echo htmlspecialchars($grade['q4_letter']); ?></td>
+                                                <td><?php echo htmlspecialchars($grade['final_letter']); ?></td>
+                                                <td><?php echo htmlspecialchars($grade['teacher_name']); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="7" class="text-center">No grades available for this student.</td>
+                                        </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>

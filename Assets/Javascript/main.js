@@ -38,8 +38,10 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     animateCounter('studentlist', parseInt(document.getElementById('studentlist').getAttribute('data-count')));
+    animateCounter('subjectslist', parseInt(document.getElementById('subjectslist').getAttribute('data-count')));
     animateCounter('classlist', parseInt(document.getElementById('classlist').getAttribute('data-count')));
     animateCounter('teacherlist', parseInt(document.getElementById('teacherlist').getAttribute('data-count')));
+
 });
 
 document.getElementById('profile-picture').addEventListener('change', function(event) {

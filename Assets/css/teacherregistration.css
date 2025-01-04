@@ -455,11 +455,17 @@ input[type="date"].form-control {
   align-items: center;
   justify-content: center;
   background: #f8f8f8;
+  border-radius: 10px;
+  border: 1px solid grey;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .photo-placeholder img {
   width: 180px;
   height: 180px;
+  border-radius: 10px;
+  border: 1px solid grey;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .photo-requirements {

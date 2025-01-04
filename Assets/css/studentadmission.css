@@ -429,3 +429,19 @@ input[type="date"].form-control {
    background-color:#f4f4f4;
    margin-bottom: 10px;
 }
+
+
+
+.credentials-section {
+    border-top: 1.5px solid #B3AEAE;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .credentials-section h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #000;
+    font-weight: bold;
+    font-weight: 20px;
+  }

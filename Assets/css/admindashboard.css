@@ -270,9 +270,22 @@
 
   }
 
+  #subjectslist{
+    position: absolute;
+    font-size: 40px;
+    margin-top: 10px;
+    margin-left: 200px;
+
+  }
+
+
+
   #student-list{
     margin-left: 155px;
+  }
 
+  #subjectlist{
+    margin-left: 168px;
   }
 
   #classlist{
@@ -294,7 +307,7 @@
     margin-left: 200px;
   }
 
-  #subjectlist, #teacher-list{
+   #teacher-list{
     margin-left: 165px;
   }
 
